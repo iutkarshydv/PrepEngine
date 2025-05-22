@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Courses - PrepEngine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/api.js"></script>
+    <script src="js/header-init.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header styles moved to header.css */
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .page-description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .course-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .course-image {
+            height: 160px;
+            background-color: #3f51b5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        
+        .course-content {
+            padding: 1.5rem;
+        }
+        
+        .course-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .course-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .course-meta i {
+            margin-right: 0.5rem;
+        }
+        
+        .course-meta span {
+            margin-right: 1rem;
+        }
+        
+        .course-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-btn {
+            display: inline-block;
+            background-color: #3f51b5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .view-btn:hover {
+            background-color: #303f9f;
+        }
+        
+        .star-btn {
+            background: none;
+            border: none;
+            color: #ffc107;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .star-btn:hover {
+            background-color: rgba(255, 193, 7, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-state-btn {
+            display: inline-block;
+            background-color: #3f51b5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .empty-state-btn:hover {
+            background-color: #303f9f;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Container for dynamically loading the header -->
+    <div id="header-container"></div>
+    
+    <div class="container">
+        <h1 class="page-title">Saved Courses</h1>
+        <p class="page-description">View all your saved courses and their content</p>
+        
+        <div id="saved-courses-container">
+            <!-- Saved courses will be loaded here -->
+            <div class="empty-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <h3>Loading Saved Courses...</h3>
+                <p>Please wait while we fetch your saved courses.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Function to load saved courses
+        function loadSavedCourses() {
+            const savedCoursesContainer = document.getElementById('saved-courses-container');
+            
+            // Get current user
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                // If not logged in, show login message
+                savedCoursesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-lock"></i>
+                        <h3>Login Required</h3>
+                        <p>Please login to view your saved courses.</p>
+                        <a href="login.html" class="empty-state-btn">Login Now</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Get saved courses
+            const savedCourses = currentUser.savedCourses || [];
+            
+            if (savedCourses.length === 0) {
+                // If no saved courses, show empty state
+                savedCoursesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>No Saved Courses</h3>
+                        <p>You haven't saved any courses yet. Browse courses and click the star icon to save them.</p>
+                        <a href="index.html" class="empty-state-btn">Browse Courses</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display saved courses
+            savedCoursesContainer.innerHTML = `<div class="courses-grid"></div>`;
+            const coursesGrid = document.querySelector('.courses-grid');
+            
+            // Get saved notes, syllabus, and papers for counting
+            const savedNotes = currentUser.savedNotes || [];
+            const savedSyllabus = currentUser.savedSyllabus || [];
+            const savedPapers = currentUser.savedPapers || [];
+            
+            savedCourses.forEach(courseName => {
+                // Count saved items for this course
+                const courseNotes = savedNotes.filter(note => 
+                    note.courseName === courseName || note.course === courseName).length;
+                const courseSyllabus = savedSyllabus.filter(syllabus => 
+                    syllabus.courseName === courseName || syllabus.course === courseName).length;
+                const coursePapers = savedPapers.filter(paper => 
+                    paper.courseName === courseName || paper.course === courseName).length;
+                
+                // Create course card
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                courseCard.innerHTML = `
+                    <div class="course-image">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="course-content">
+                        <h3 class="course-title">${courseName}</h3>
+                        <div class="course-meta">
+                            <span><i class="fas fa-sticky-note"></i> ${courseNotes} Notes</span>
+                            <span><i class="fas fa-list-alt"></i> ${courseSyllabus} Syllabus</span>
+                            <span><i class="fas fa-file-alt"></i> ${coursePapers} Papers</span>
+                        </div>
+                        <div class="course-actions">
+                            <a href="saved-content.html?course=${encodeURIComponent(courseName)}" class="view-btn">
+                                <i class="fas fa-eye"></i> View Content
+                            </a>
+                            <button class="star-btn" onclick="unsaveCourse('${courseName}', this)">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                coursesGrid.appendChild(courseCard);
+            });
+        }
+        
+        // Function to unsave a course
+        async function unsaveCourse(courseName, button) {
+            if (!confirm(`Are you sure you want to unsave ${courseName} and all its content?`)) {
+                return;
+            }
+            
+            // Get current user and token
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
+            
+            if (!currentUser || !token) {
+                alert('You must be logged in to unsave courses');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                console.log(`Removing all saved content for course: ${courseName}`);
+                
+                // Get all saved notes, syllabus, and papers from the server
+                const endpoints = [
+                    '/api/saved/notes',
+                    '/api/saved/syllabus',
+                    '/api/saved/papers'
+                ];
+                
+                // Process each endpoint
+                for (const endpoint of endpoints) {
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const items = await response.json();
+                        console.log(`Server items from ${endpoint}:`, items);
+                        
+                        // Find items for this course
+                        const courseItems = items.filter(item => 
+                            item.courseName === courseName || item.course === courseName);
+                        
+                        console.log(`Items to delete from ${endpoint}:`, courseItems);
+                        
+                        // Delete each item from the server
+                        for (const item of courseItems) {
+                            const itemType = endpoint.split('/').pop(); // notes, syllabus, or papers
+                            const singularType = itemType.endsWith('s') ? 
+                                itemType.substring(0, itemType.length - 1) : itemType;
+                            
+                            const deleteEndpoint = `/api/saved/${singularType}/${item._id}`;
+                            console.log(`Removing from server: ${deleteEndpoint}`);
+                            
+                            try {
+                                const deleteResponse = await fetch(deleteEndpoint, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                
+                                if (!deleteResponse.ok) {
+                                    console.error(`Failed to remove item from server:`, await deleteResponse.json());
+                                }
+                            } catch (error) {
+                                console.error(`Error removing item:`, error);
+                            }
+                        }
+                    }
+                }
+                
+                // Remove course from server
+                const removeCourseResponse = await fetch(`/api/saved/course/${encodeURIComponent(courseName)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!removeCourseResponse.ok) {
+                    console.error('Failed to remove course from server:', await removeCourseResponse.json());
+                }
+                
+                // Remove all items for this course from localStorage
+                if (currentUser.savedNotes) {
+                    currentUser.savedNotes = currentUser.savedNotes.filter(note => 
+                        note.courseName !== courseName && note.course !== courseName);
+                }
+                
+                if (currentUser.savedSyllabus) {
+                    currentUser.savedSyllabus = currentUser.savedSyllabus.filter(syllabus => 
+                        syllabus.courseName !== courseName && syllabus.course !== courseName);
+                }
+                
+                if (currentUser.savedPapers) {
+                    currentUser.savedPapers = currentUser.savedPapers.filter(paper => 
+                        paper.courseName !== courseName && paper.course !== courseName);
+                }
+                
+                // Remove course from saved courses
+                if (currentUser.savedCourses) {
+                    currentUser.savedCourses = currentUser.savedCourses.filter(course => course !== courseName);
+                }
+                
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Remove the course card from the UI
+                const courseCard = button.closest('.course-card');
+                courseCard.style.opacity = '0';
+                courseCard.style.transform = 'scale(0.8)';
+                courseCard.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    courseCard.remove();
+                    
+                    // If no more courses, show empty state
+                    if (currentUser.savedCourses.length === 0) {
+                        loadSavedCourses();
+                    }
+                }, 300);
+                
+                // Show success message
+                alert(`Successfully unsaved ${courseName} and all its content.`);
+                
+            } catch (error) {
+                console.error('Error unsaving course:', error);
+                alert(`Failed to unsave course. Please try again.`);
+            }
+        }
+        
+        // Call the loadHeader function from header-init.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load header
+            loadHeader();
+            
+            // Load saved courses
+            loadSavedCourses();
+        });
+    </script>
+</body>
+</html>

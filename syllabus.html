@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syllabus - PrepEngine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/api.js"></script>
+    <script src="js/header-init.js"></script>
+    <style>
+        /* Header styles (navbar) moved to header.css */
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Syllabus item styles */
+        .syllabus-files {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .syllabus-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .syllabus-item:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .syllabus-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .syllabus-info i {
+            color: #3f51b5;
+            font-size: 1.2rem;
+        }
+        
+        .no-files, .error-message {
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .no-files i, .error-message i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #757575;
+        }
+        
+        .error-message i {
+            color: #f44336;
+        }
+        
+        .syllabus-form {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            padding: 30px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(33,150,243,0.08);
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: left;
+        }
+        .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(33,150,243,0.3);
+            border-radius: 10px;
+            font-size: 1.05rem;
+            transition: border 0.2s;
+        }
+        .form-select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+        }
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            margin-top: 32px;
+            background: linear-gradient(90deg, var(--primary-light), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .download-btn:hover {
+            background: linear-gradient(90deg, var(--primary-color), #1976d2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(33,150,243,0.16);
+        }
+        .syllabus-info {
+            margin-top: 40px;
+            padding: 24px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 14px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .info-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .university-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        .university-badge {
+            padding: 10px 16px;
+            background: rgba(33,150,243,0.1);
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .university-badge i {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape1"></div>
+    <div class="bg-shape2"></div>
+    <div class="bg-shape3"></div>
+    <!-- Include the header and side panel -->
+    <div id="header-container"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <span class="current">Syllabus</span>
+            </div>
+            
+            <h1 class="page-title">Engineering Syllabus</h1>
+            <p class="page-description">Download official curriculum and syllabus documents for various engineering courses across different universities.</p>
+            
+            <div class="syllabus-form">
+                <div class="form-group">
+                    <label class="form-label">Select Course</label>
+                    <select class="form-select" id="course-select">
+                        <option value="">-- Select a Course --</option>
+                        <!-- Courses will be loaded dynamically -->
+                    </select>
+                </div>
+                
+                <!-- University dropdown has been removed as requested -->
+                
+                <!-- Year dropdown has been removed as requested -->
+                
+                <div id="syllabus-list" class="syllabus-files">
+                    <p id="syllabus-placeholder">Please select a course to view available syllabus files.</p>
+                    <!-- Syllabus files will be loaded here dynamically -->
+                </div>
+            </div>
+            
+            <div class="syllabus-info">
+                <h3 class="info-title"><i class="fas fa-info-circle"></i> About Our Syllabus Repository</h3>
+                <p>Our comprehensive syllabus collection includes official curriculum documents from top engineering universities worldwide. These documents are regularly updated to ensure accuracy and relevance for your academic needs.</p>
+                
+                <!-- University section has been removed as dropdown was removed -->
+            </div>
+        </div>
+    </div>
+    
+    
+    <script>
+        // Call the loadHeader function from header-init.js instead of defining it here
+        
+        // No need for custom header initialization - it's now handled by header.js embedded in header.html
+        
+        // Load header immediately
+        loadHeader();
+        
+        // Also ensure it's loaded after DOM is ready (backup)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!document.querySelector('#hamburger-btn')) {
+                console.log('Header not loaded properly, retrying...');
+                loadHeader();
+            }
+            
+            const downloadBtn = document.getElementById('download-syllabus');
+            const courseSelect = document.getElementById('course-select');
+            
+            // Show loading state in the dropdown
+            courseSelect.innerHTML = '<option value="">Loading courses...</option>';
+            courseSelect.disabled = true;
+            
+            // Fetch courses from the Node.js API
+            fetch('http://localhost:3000/api/courses')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load courses');
+                    }
+                    return response.json();
+                })
+                .then(courses => {
+                    // Clear loading option
+                    courseSelect.innerHTML = '<option value="">-- Select a Course --</option>';
+                    courseSelect.disabled = false;
+                    
+                    // Add courses to dropdown
+                    courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.name;
+                        option.textContent = course.name;
+                        courseSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading courses:', error);
+                    courseSelect.innerHTML = '<option value="">-- Error Loading Courses --</option>';
+                    courseSelect.disabled = true;
+                    
+                    // Show error message
+                    document.querySelector('.syllabus-form').insertAdjacentHTML('beforeend', `
+                        <div class="error-message" style="margin-top: 24px; padding: 16px; background-color: rgba(244, 67, 54, 0.1); border-left: 4px solid #f44336; color: #d32f2f;">
+                            <p><i class="fas fa-exclamation-triangle"></i> Failed to load courses. Make sure the NoteNexus server is running.</p>
+                            <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">Start the server with: <code>npm start</code></p>
+                        </div>
+                    `);
+                });
+            
+            // Add change event listener to course select
+            courseSelect.addEventListener('change', function() {
+                const course = courseSelect.value;
+                const syllabusList = document.getElementById('syllabus-list');
+                
+                if(!course) {
+                    syllabusList.innerHTML = '<p id="syllabus-placeholder">Please select a course to view available syllabus files.</p>';
+                    return;
+                }
+                
+                // Show loading indicator
+                syllabusList.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Loading syllabus files...</p>';
+                
+                // Fetch the course data from the API
+                fetch(`http://localhost:3000/api/course/${encodeURIComponent(course)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to load course data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.syllabus && data.syllabus.length > 0) {
+                            // Display syllabus files
+                            syllabusList.innerHTML = '';
+                            
+                            data.syllabus.forEach(file => {
+                                const fileItem = document.createElement('div');
+                                fileItem.className = 'syllabus-item';
+                                
+                                // Get file extension for icon
+                                const fileExtension = file.name.split('.').pop().toLowerCase();
+                                let fileIcon = 'fa-file';
+                                if (fileExtension === 'pdf') fileIcon = 'fa-file-pdf';
+                                else if (['doc', 'docx'].includes(fileExtension)) fileIcon = 'fa-file-word';
+                                else if (['ppt', 'pptx'].includes(fileExtension)) fileIcon = 'fa-file-powerpoint';
+                                
+                                fileItem.innerHTML = `
+                                    <div class="syllabus-info">
+                                        <i class="fas ${fileIcon}"></i>
+                                        <span>${file.name}</span>
+                                    </div>
+                                    <a href="${file.path}" class="download-btn">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                `;
+                                
+                                syllabusList.appendChild(fileItem);
+                            });
+                        } else {
+                            // No syllabus files found
+                            syllabusList.innerHTML = `
+                                <div class="no-files">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <p>No syllabus files found for ${course}.</p>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading syllabus files:', error);
+                        syllabusList.innerHTML = `
+                            <div class="error-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Error loading syllabus files. Please try again later.</p>
+                            </div>
+                        `;
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

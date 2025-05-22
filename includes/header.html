@@ -1,0 +1,81 @@
+<!-- Header Navigation -->
+<nav class="navbar">
+    <div class="navbar-left">
+        <div class="hamburger-menu">
+            <button id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="navbar-center">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-book-open"></i> PrepEngine
+        </a>
+    </div>
+    
+    <div class="navbar-right">
+        <div id="auth-links" class="auth-buttons">
+            <a href="login.html" class="navbar-login-btn">Login</a>
+            <a href="signup.html" class="navbar-signup-btn">Sign Up</a>
+        </div>
+        
+        <div id="user-menu" class="user-menu" style="display: none;">
+            <a href="#" id="user-name">
+                <i class="fas fa-user"></i> <span>User</span>
+            </a>
+            <div class="user-menu-content">
+                <a href="savednotes.html" class="user-menu-item">
+                    <i class="fas fa-bookmark"></i> Saved Notes
+                </a>
+                <a href="#" class="user-menu-item logout" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Side Panel -->
+<div id="side-panel" class="side-panel">
+    <div class="side-panel-header">
+        <h3>Menu</h3>
+        <button id="close-panel-btn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="side-panel-content">
+        <a href="index.html" class="side-panel-item">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="course-list.html" class="side-panel-item">
+            <i class="fas fa-book"></i> Courses
+        </a>
+        <a href="question-paper.html" class="side-panel-item">
+            <i class="fas fa-file-alt"></i> Question Papers
+        </a>
+        <a href="syllabus.html" class="side-panel-item">
+            <i class="fas fa-list-alt"></i> Syllabus
+        </a>
+        <div class="side-panel-divider"></div>
+        <div id="side-panel-auth-links">
+            <a href="login.html" class="side-panel-item">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="signup.html" class="side-panel-item">
+                <i class="fas fa-user-plus"></i> Sign Up
+            </a>
+        </div>
+        <div id="side-panel-user-links" style="display: none;">
+            <a href="savednotes.html" class="side-panel-item">
+                <i class="fas fa-bookmark"></i> Saved Notes
+            </a>
+            <a href="#" id="side-panel-logout" class="side-panel-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+<div id="overlay" class="overlay"></div>
+
+<!-- Header HTML only - JavaScript moved to js/header-init.js -->

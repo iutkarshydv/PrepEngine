@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course List - PrepEngine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/api.js"></script>
+    <script src="js/header-init.js"></script>
+    <style>
+        /* Header styles (hamburger menu, side panel, navbar) moved to header.css */
+    </style>
+</head>
+<body>
+    <div class="bg-shape1"></div>
+    <div class="bg-shape2"></div>
+    <div class="bg-shape3"></div>
+    <!-- Include the header and side panel -->
+    <div id="header-container"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <span class="current">Course List</span>
+            </div>
+            
+            <h1 class="page-title">Engineering Course List</h1>
+            <p class="page-description">Browse through our comprehensive collection of engineering courses. Select a course to access study materials, notes, previous year question papers, and syllabus.</p>
+            
+            <div class="card-grid" id="course-grid">
+                <!-- Courses will be loaded dynamically -->
+                <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #3f51b5; margin: 20px auto; display: block;"></i>
+                    <p style="text-align: center;">Loading courses...</p>
+                </div>
+            </div>
+            
+            <script>
+                // This function will dynamically load courses based on the database directory
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadCourses();
+                });
+                
+                function loadCourses() {
+                    const courseGrid = document.getElementById('course-grid');
+                    
+                    // Show loading indicator
+                    courseGrid.innerHTML = `
+                        <div class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #3f51b5; margin: 20px auto; display: block;"></i>
+                            <p style="text-align: center;">Loading courses...</p>
+                        </div>
+                    `;
+                    
+                    // Fetch courses from the Node.js API
+                    fetch('http://localhost:3000/api/courses')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to load courses');
+                            }
+                            return response.json();
+                        })
+                        .then(courses => {
+                            // Log the API response for debugging
+                            console.log('API Response:', courses);
+                            
+                            // Clear loading indicator
+                            courseGrid.innerHTML = '';
+                            
+                            if (courses.length === 0) {
+                                courseGrid.innerHTML = `
+                                    <div style="text-align: center; padding: 30px; grid-column: 1 / -1;">
+                                        <p>No courses found in the database. Make sure you have course folders in the database directory.</p>
+                                    </div>
+                                `;
+                                return;
+                            }
+                            
+                            // Generate course cards - handling both possible API response formats
+                            courses.forEach(course => {
+                                // Handle both object format {name, description} and string format
+                                const courseData = typeof course === 'string' 
+                                    ? { name: course, description: `Resources for ${course}`, imageKeyword: 'education' }
+                                    : course;
+                                    
+                                courseGrid.innerHTML += createCourseCard(courseData);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading courses:', error);
+                            courseGrid.innerHTML = `
+                                <div class="error-message" style="text-align: center; padding: 40px;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #f44336; margin-bottom: 16px;"></i>
+                                    <p>Failed to load courses. Make sure the NoteNexus server is running.</p>
+                                    <p class="small" style="margin-top: 8px; font-size: 0.9rem; color: #666;">Start the server with: <code>npm start</code></p>
+                                </div>
+                            `;
+                        });
+                }
+                
+                // Function to generate a course card HTML
+                function createCourseCard(course) {
+                    // Ensure we have all required properties with fallbacks
+                    const courseName = course.name || 'Unknown Course';
+                    const courseDesc = course.description || `Resources for ${courseName}`;
+                    const imageKeyword = course.imageKeyword || 'education';
+                    
+                    console.log('Creating card for course:', courseName);
+                    
+                    // Create color coding based on course type
+                    const colorMap = {
+                        'python': '#3776AB',
+                        'algorithm': '#FF6B6B',
+                        'computer': '#333333',
+                        'circuit': '#4CAF50',
+                        'engineering': '#2196F3',
+                        'drone': '#9C27B0',
+                        'communication': '#FFC107',
+                        'technical': '#E91E63',
+                        'education': '#3F51B5'
+                    };
+                    
+                    const headerColor = colorMap[imageKeyword] || colorMap['education'];
+                    
+                    // No longer need to check if course is saved since we removed star buttons
+                    
+                    return `
+                        <div class="card">
+                            <div class="card-header" style="background-color: ${headerColor}; height: 10px;"></div>
+                            <div class="card-body" style="padding-top: 20px;">
+                                <h3 class="card-title">${courseName}</h3>
+                                <p class="card-text">${courseDesc}</p>
+                                <div class="card-actions" style="display: flex; justify-content: flex-end; margin-top: 15px;">
+                                    <a href="course.html?course=${encodeURIComponent(courseName)}" class="card-link" style="color: #3f51b5; text-decoration: none;">View Course</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Function to automatically scan the database directory 
+                // This would be implemented with server-side code in a production environment
+                function scanDatabaseDirectory() {
+                    // This is a placeholder for server-side directory scanning
+                    // In a real implementation, this would use PHP, Node.js, or another backend
+                    // to read the filesystem and return the list of courses
+                    console.log('Directory scanning would happen server-side');
+                    return [];
+                }
+                
+                // Function to automatically scan the database directory
+                // This would be implemented with server-side code in a production environment
+                
+                // Check if user is logged in and update UI accordingly
+                document.addEventListener('DOMContentLoaded', function() {
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    
+                    if (currentUser) {
+                        // Hide auth links and show user menu
+                        document.getElementById('auth-links').style.display = 'none';
+                        document.getElementById('user-menu').style.display = 'block';
+                        document.querySelector('#user-name span').textContent = currentUser.name;
+                        
+                        // Update side panel
+                        document.getElementById('side-panel-auth-links').style.display = 'none';
+                        document.getElementById('side-panel-user-links').style.display = 'block';
+                        
+                        // Handle logout
+                        document.getElementById('logout-btn').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            localStorage.removeItem('currentUser');
+                            window.location.reload();
+                        });
+                        
+                        // Side panel logout functionality
+                        document.getElementById('side-panel-logout').addEventListener('click', function(e) {
+                            e.preventDefault();
+                            localStorage.removeItem('currentUser');
+                            window.location.href = 'index.html';
+                        });
+                    }
+                    
+                    // Hamburger menu functionality
+                    const hamburgerBtn = document.getElementById('hamburger-btn');
+                    const sidePanel = document.getElementById('side-panel');
+                    const closeBtn = document.getElementById('close-panel-btn');
+                    const overlay = document.getElementById('overlay');
+                    
+                    // Open side panel
+                    hamburgerBtn.addEventListener('click', function() {
+                        sidePanel.classList.add('open');
+                        overlay.classList.add('open');
+                        document.body.style.overflow = 'hidden'; // Prevent scrolling
+                    });
+                    
+                    // Close side panel
+                    function closePanel() {
+                        sidePanel.classList.remove('open');
+                        overlay.classList.remove('open');
+                        document.body.style.overflow = ''; // Re-enable scrolling
+                    }
+                    
+                    closeBtn.addEventListener('click', closePanel);
+                    overlay.addEventListener('click', closePanel);
+                });
+            </script>
+            
+            <style>
+                /* User menu styles */
+                .user-menu {
+                    position: relative;
+                    cursor: pointer;
+                }
+                
+                .user-menu-content {
+                    position: absolute;
+                    right: 0;
+                    top: 100%;
+                    background: white;
+                    border-radius: 4px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    width: 200px;
+                    z-index: 100;
+                    display: none;
+                }
+                
+                .user-menu:hover .user-menu-content {
+                    display: block;
+                }
+                
+                .user-menu-item {
+                    padding: 0.75rem 1rem;
+                    display: block;
+                    color: #333;
+                    text-decoration: none;
+                    transition: background-color 0.3s;
+                }
+                
+                .user-menu-item:hover {
+                    background-color: #f5f5f5;
+                }
+                
+                .user-menu-item.logout {
+                    border-top: 1px solid #eee;
+                    color: #f44336;
+                }
+                
+                /* Card styles */
+                .card-actions {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 1rem;
+                    align-items: center;
+                }
+                
+                .card-link {
+                    color: #3f51b5;
+                    text-decoration: none;
+                    font-weight: 500;
+                    font-size: 0.9rem;
+                }
+                
+                .card-link:hover {
+                    text-decoration: underline;
+                }
+                
+                .star-btn {
+                    background: none;
+                    border: none;
+                    color: #ffc107;
+                    cursor: pointer;
+                    font-size: 1.25rem;
+                    transition: transform 0.2s;
+                }
+                
+                .star-btn:hover {
+                    transform: scale(1.2);
+                }
+                /* Navbar styles moved to header.css */
+            </style>
+        </div>
+    </div>
+    
+    <script>
+        // Call the loadHeader function from header-init.js instead of defining it here
+        
+        // No need for custom header initialization - it's now handled by header.js embedded in header.html
+        
+        // Load header immediately
+        loadHeader();
+        
+        // Also ensure it's loaded after DOM is ready (backup)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!document.querySelector('#hamburger-btn')) {
+                console.log('Header not loaded properly, retrying...');
+                loadHeader();
+            }
+        });
+    </script>
+</body>
+</html>

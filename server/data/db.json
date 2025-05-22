@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "id": "1747720606428",
+      "name": "Utkarsh",
+      "email": "iutkarshydv@gmail.com",
+      "password": "$2a$10$vQTqgB0qYrsgbKXl4r5LDu0kvUoe6Otd8ju5hpXBQYns8VQOMtzdu",
+      "savedCourses": [],
+      "savedNotes": [],
+      "savedSyllabus": [],
+      "savedPapers": []
+    }
+  ]
+}

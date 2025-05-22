@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - PrepEngine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header i {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #333;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .user-dropdown-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-dropdown-toggle img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .user-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .user-dropdown.active .user-dropdown-menu {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: block;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .dropdown-item.logout {
+            border-top: 1px solid #eee;
+            color: #f44336;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .card-btn {
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: #555;
+            transition: all 0.3s;
+        }
+        
+        .card-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .card-btn.refresh {
+            color: #2196f3;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-table th, .user-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-table th {
+            font-weight: 600;
+            color: #555;
+            background-color: #f9f9f9;
+        }
+        
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .user-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .user-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .user-action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-action-btn.view {
+            color: #2196f3;
+        }
+        
+        .user-action-btn.edit {
+            color: #4caf50;
+        }
+        
+        .user-action-btn.delete {
+            color: #f44336;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge.active {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        .badge.inactive {
+            background-color: #ffebee;
+            color: #f44336;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.users {
+            background-color: #e3f2fd;
+            color: #2196f3;
+        }
+        
+        .stat-icon.courses {
+            background-color: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        .stat-icon.notes {
+            background-color: #fff8e1;
+            color: #ffc107;
+        }
+        
+        .stat-icon.papers {
+            background-color: #f3e5f5;
+            color: #9c27b0;
+        }
+        
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 600px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        .modal-close:hover {
+            color: #f44336;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: #3f51b5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #303f9f;
+        }
+        
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        .user-details {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .detail-title i {
+            margin-right: 0.5rem;
+            color: #3f51b5;
+        }
+        
+        .detail-list {
+            list-style: none;
+            padding-left: 1.5rem;
+        }
+        
+        .detail-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-item-title {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .detail-item-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .empty-message {
+            color: #999;
+            font-style: italic;
+            padding: 0.5rem 0;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            color: #3f51b5;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-danger {
+            background-color: #ffebee;
+            color: #f44336;
+            border-left: 4px solid #f44336;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #4caf50;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .alert-info {
+            background-color: #e3f2fd;
+            color: #2196f3;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .alert-warning {
+            background-color: #fff8e1;
+            color: #ffc107;
+            border-left: 4px solid #ffc107;
+        }
+        
+        /* Search and Filter Styles */
+        .search-filter-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .filter-options {
+            min-width: 150px;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 0.9rem;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem;
+            gap: 1rem;
+        }
+        
+        .pagination-btn {
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #e0e0e0;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        /* Settings Page Styles */
+        .settings-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-actions {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .toggle-password-btn {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin: 0.5rem 0;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-switch label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-switch label:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        .toggle-switch input:checked + label {
+            background-color: #3f51b5;
+        }
+        
+        .toggle-switch input:checked + label:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-book"></i>
+                <h1>NoteNexus Admin</h1>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#" class="menu-item" data-page="users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="#" class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="#" class="menu-item logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <div class="user-dropdown">
+                    <button class="user-dropdown-toggle">
+                        <i class="fas fa-user-circle" style="font-size: 32px; margin-right: 0.5rem;"></i>
+                        <span>Admin</span>
+                        <i class="fas fa-chevron-down" style="margin-left: 0.5rem;"></i>
+                    </button>
+                    <div class="user-dropdown-menu">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <a href="#" class="dropdown-item logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Page -->
+            <div class="page" id="dashboard-page">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-users">0</h3>
+                            <p>Total Users</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon courses">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-courses">0</h3>
+                            <p>Saved Courses</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon notes">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-notes">0</h3>
+                            <p>Saved Notes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon papers">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-papers">0</h3>
+                            <p>Saved Papers</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Users</h2>
+                        <div class="card-actions">
+                            <button class="card-btn refresh" id="refresh-users-btn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Saved Content</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="loading">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Page -->
+            <div class="page" id="users-page" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">All Users</h2>
+                        <div class="card-actions">
+                            <button class="card-btn refresh" id="refresh-all-users-btn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-btn" id="add-user-btn">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="search-filter-container">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="user-search" placeholder="Search users..." class="search-input">
+                            </div>
+                            <div class="filter-options">
+                                <select id="user-filter" class="filter-select">
+                                    <option value="all">All Users</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Saved Content</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-users-table-body">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="loading">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <button class="pagination-btn" id="prev-page-btn" disabled>
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <span class="pagination-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                            <button class="pagination-btn" id="next-page-btn" disabled>
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Page removed as requested -->
+            
+            <!-- Settings Page -->
+            <div class="page" id="settings-page" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Admin Settings</h2>
+                    </div>
+                    <div class="card-content">
+                        <div id="settings-alert" class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Changes to settings will be saved to the server.
+                        </div>
+                        
+                        <form id="admin-settings-form">
+                            <h3 class="settings-section-title">Admin Account</h3>
+                            <div class="form-group">
+                                <label for="admin-username">Admin Username</label>
+                                <input type="text" id="admin-username" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="current-password">Current Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="current-password" class="form-control" required>
+                                    <button type="button" class="toggle-password-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="new-password" class="form-control">
+                                    <button type="button" class="toggle-password-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted">Leave blank if you don't want to change it</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm-password">Confirm New Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="confirm-password" class="form-control">
+                                    <button type="button" class="toggle-password-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <h3 class="settings-section-title">System Settings</h3>
+                            <div class="form-group">
+                                <label for="session-timeout">Session Timeout (minutes)</label>
+                                <input type="number" id="session-timeout" class="form-control" min="5" max="1440" value="60" required>
+                                <small class="form-text text-muted">How long until admin sessions expire</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>User Registration</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="allow-registration" checked>
+                                    <label for="allow-registration"></label>
+                                </div>
+                                <small class="form-text text-muted">Allow new users to register</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Content Saving</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="allow-content-saving" checked>
+                                    <label for="allow-content-saving"></label>
+                                </div>
+                                <small class="form-text text-muted">Allow users to save courses and content</small>
+                            </div>
+                            
+                            <h3 class="settings-section-title">Backup & Maintenance</h3>
+                            <div class="form-group">
+                                <button type="button" id="backup-data-btn" class="btn btn-secondary">
+                                    <i class="fas fa-download"></i> Backup User Data
+                                </button>
+                                <small class="form-text text-muted">Download a JSON backup of all user data</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="button" id="clear-data-btn" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Clear All Data
+                                </button>
+                                <small class="form-text text-muted">WARNING: This will delete all user data</small>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" id="save-settings-btn" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Settings
+                                </button>
+                                <button type="button" id="reset-settings-btn" class="btn btn-secondary">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Details Modal -->
+    <div class="modal" id="user-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">User Details</h2>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="user-details-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete User Modal -->
+    <div class="modal" id="delete-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Delete User</h2>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Are you sure you want to delete this user? This action cannot be undone.
+                </div>
+                <p>All saved content for this user will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close-btn">Cancel</button>
+                <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if admin is logged in
+            const adminToken = localStorage.getItem('adminToken');
+            if (!adminToken) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            // UI Elements
+            const userDropdownToggle = document.querySelector('.user-dropdown-toggle');
+            const userDropdownMenu = document.querySelector('.user-dropdown-menu');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const pages = document.querySelectorAll('.page');
+            const pageTitle = document.querySelector('.page-title');
+            const logoutBtns = document.querySelectorAll('.logout-btn');
+            const refreshUsersBtn = document.getElementById('refresh-users-btn');
+            const refreshAllUsersBtn = document.getElementById('refresh-all-users-btn');
+            const refreshContentBtn = document.getElementById('refresh-content-btn');
+            const modalCloseBtns = document.querySelectorAll('.modal-close, .modal-close-btn');
+            
+            // Stats elements
+            const totalUsersElement = document.getElementById('total-users');
+            const totalCoursesElement = document.getElementById('total-courses');
+            const totalNotesElement = document.getElementById('total-notes');
+            const totalPapersElement = document.getElementById('total-papers');
+            
+            // Table bodies
+            const usersTableBody = document.getElementById('users-table-body');
+            const allUsersTableBody = document.getElementById('all-users-table-body');
+            
+            // Modals
+            const userDetailsModal = document.getElementById('user-details-modal');
+            const deleteUserModal = document.getElementById('delete-user-modal');
+            const userDetailsContent = document.getElementById('user-details-content');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            
+            // Content stats
+            const contentStats = document.getElementById('content-stats');
+            
+            // Current user to delete
+            let currentUserToDelete = null;
+            
+            // Toggle user dropdown
+            userDropdownToggle.addEventListener('click', function() {
+                document.querySelector('.user-dropdown').classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-dropdown')) {
+                    document.querySelector('.user-dropdown').classList.remove('active');
+                }
+            });
+            
+            // Menu navigation
+            menuItems.forEach(item => {
+                if (!item.classList.contains('logout-btn')) {
+                    item.addEventListener('click', function() {
+                        const pageName = this.getAttribute('data-page');
+                        
+                        // Update active menu item
+                        menuItems.forEach(menuItem => {
+                            menuItem.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Show selected page
+                        pages.forEach(page => {
+                            page.style.display = 'none';
+                        });
+                        document.getElementById(`${pageName}-page`).style.display = 'block';
+                        
+                        // Update page title
+                        pageTitle.textContent = this.textContent.trim();
+                    });
+                }
+            });
+            
+            // Logout functionality
+            logoutBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = 'admin-login.html';
+                });
+            });
+            
+            // Modal close functionality
+            modalCloseBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    userDetailsModal.classList.remove('active');
+                    deleteUserModal.classList.remove('active');
+                });
+            });
+            
+            // User data and pagination variables
+            let allUsers = [];
+            let filteredUsers = [];
+            let currentPage = 1;
+            let usersPerPage = 10;
+            let totalPages = 1;
+            
+            // Fetch all users
+            async function fetchAllUsers() {
+                try {
+                    const response = await fetch('/api/admin/users', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${adminToken}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch users');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Store all users
+                    allUsers = data.users || [];
+                    
+                    // Add registration date if not present
+                    allUsers.forEach(user => {
+                        if (!user.dateAdded) {
+                            user.dateAdded = new Date().toISOString();
+                        }
+                    });
+                    
+                    // Apply initial filtering and display
+                    applyFiltersAndSearch();
+                    
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                    showAlert('Failed to fetch users. Please try again.', 'error');
+                    
+                    // Clear the table
+                    const tableBody = document.getElementById('all-users-table-body');
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">Error loading users</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Apply filters and search
+            function applyFiltersAndSearch() {
+                const searchTerm = document.getElementById('user-search').value.toLowerCase();
+                const filterValue = document.getElementById('user-filter').value;
+                
+                // Filter users based on search term and filter
+                filteredUsers = allUsers.filter(user => {
+                    // Search term matching
+                    const matchesSearch = 
+                        !searchTerm || 
+                        (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                        (user.email && user.email.toLowerCase().includes(searchTerm));
+                    
+                    // Filter matching
+                    let matchesFilter = true;
+                    if (filterValue === 'active') {
+                        matchesFilter = user.active !== false; // Consider undefined as active
+                    } else if (filterValue === 'inactive') {
+                        matchesFilter = user.active === false;
+                    }
+                    
+                    return matchesSearch && matchesFilter;
+                });
+                
+                // Update pagination
+                totalPages = Math.max(1, Math.ceil(filteredUsers.length / usersPerPage));
+                if (currentPage > totalPages) {
+                    currentPage = 1;
+                }
+                
+                // Update pagination UI
+                document.getElementById('current-page').textContent = currentPage;
+                document.getElementById('total-pages').textContent = totalPages;
+                document.getElementById('prev-page-btn').disabled = currentPage <= 1;
+                document.getElementById('next-page-btn').disabled = currentPage >= totalPages;
+                
+                // Display current page
+                displayUserPage();
+            }
+            
+            // Display current page of users
+            function displayUserPage() {
+                const startIndex = (currentPage - 1) * usersPerPage;
+                const endIndex = Math.min(startIndex + usersPerPage, filteredUsers.length);
+                const usersToDisplay = filteredUsers.slice(startIndex, endIndex);
+                
+                // Clear the table
+                const tableBody = document.getElementById('all-users-table-body');
+                tableBody.innerHTML = '';
+                
+                // Add users to the table
+                if (usersToDisplay.length > 0) {
+                    usersToDisplay.forEach(user => {
+                        const row = createUserRow(user);
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center">No users found</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            // Fetch users data
+            function fetchUsers() {
+                fetch('/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch users');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    updateStats(data);
+                    renderUserTables(data);
+                    updateContentStats(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching users:', error);
+                    if (error.message === 'Unauthorized') {
+                        localStorage.removeItem('adminToken');
+                        window.location.href = 'admin-login.html';
+                    }
+                });
+            }
+            
+            // Update dashboard stats
+            function updateStats(users) {
+                let totalCourses = 0;
+                let totalNotes = 0;
+                let totalPapers = 0;
+                
+                users.forEach(user => {
+                    totalCourses += (user.savedCourses || []).length;
+                    totalNotes += (user.savedNotes || []).length;
+                    totalPapers += (user.savedPapers || []).length;
+                });
+                
+                totalUsersElement.textContent = users.length;
+                totalCoursesElement.textContent = totalCourses;
+                totalNotesElement.textContent = totalNotes;
+                totalPapersElement.textContent = totalPapers;
+            }
+            
+            // Render user tables
+            function renderUserTables(users) {
+                // Sort users by most recent first (assuming users have a date field)
+                const sortedUsers = [...users].sort((a, b) => {
+                    return new Date(b.date || 0) - new Date(a.date || 0);
+                });
+                
+                // Recent users (first 5)
+                const recentUsers = sortedUsers.slice(0, 5);
+                
+                // Clear loading indicators
+                usersTableBody.innerHTML = '';
+                allUsersTableBody.innerHTML = '';
+                
+                // Render recent users
+                recentUsers.forEach(user => {
+                    usersTableBody.appendChild(createUserRow(user));
+                });
+                
+                // Render all users
+                sortedUsers.forEach(user => {
+                    allUsersTableBody.appendChild(createUserRow(user));
+                });
+            }
+            
+            // Create user table row
+            function createUserRow(user) {
+                const row = document.createElement('tr');
+                
+                // Calculate total saved content
+                const totalSaved = (
+                    (user.savedCourses || []).length + 
+                    (user.savedNotes || []).length + 
+                    (user.savedSyllabus || []).length + 
+                    (user.savedPapers || []).length
+                );
+                
+                // Format registration date
+                const registrationDate = user.dateAdded ? new Date(user.dateAdded).toLocaleDateString() : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${user.name || 'N/A'}</td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${totalSaved} items</td>
+                    <td>${registrationDate}</td>
+                    <td><span class="badge active">Active</span></td>
+                    <td class="user-actions">
+                        <button class="user-action-btn view" data-user-id="${user.id}" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="user-action-btn edit" data-user-id="${user.id}" title="Edit User">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="user-action-btn delete" data-user-id="${user.id}" title="Delete User">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                userDetailsContent.innerHTML = `
+                    <div class="user-details">
+                        <h3>${user.name || 'N/A'}</h3>
+                        <p>${user.email || 'N/A'}</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-book"></i> Saved Courses (${(user.savedCourses || []).length})</h4>
+                        ${renderDetailList(user.savedCourses, 'course')}
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-sticky-note"></i> Saved Notes (${(user.savedNotes || []).length})</h4>
+                        ${renderDetailList(user.savedNotes, 'note')}
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-file-alt"></i> Saved Syllabus (${(user.savedSyllabus || []).length})</h4>
+                        ${renderDetailList(user.savedSyllabus, 'syllabus')}
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-file-pdf"></i> Saved Papers (${(user.savedPapers || []).length})</h4>
+                        ${renderDetailList(user.savedPapers, 'paper')}
+                    </div>
+                `;
+                
+                userDetailsModal.classList.add('active');
+            }
+            
+            // Render detail list for saved items
+            function renderDetailList(items, type) {
+                if (!items || items.length === 0) {
+                    return '<p class="empty-message">No items saved</p>';
+                }
+                
+                let listHTML = '<ul class="detail-list">';
+                
+                items.forEach(item => {
+                    listHTML += `
+                        <li class="detail-item">
+                            <div class="detail-item-title">${item.title || item.name || 'Untitled'}</div>
+                            <div class="detail-item-meta">
+                                Course: ${item.courseName || 'N/A'}
+                            </div>
+                        </li>
+                    `;
+                });
+                
+                listHTML += '</ul>';
+                return listHTML;
+            }
+            
+            // Show delete confirmation modal
+            function showDeleteConfirmation(user) {
+                currentUserToDelete = user;
+                deleteUserModal.classList.add('active');
+            }
+            
+            // Delete user
+            function deleteUser(userId) {
+                fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete user');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    deleteUserModal.classList.remove('active');
+                    fetchUsers(); // Refresh user data
+                })
+                .catch(error => {
+                    console.error('Error deleting user:', error);
+                    alert('Failed to delete user. Please try again.');
+                });
+            }
+            
+            // Update content stats
+            function updateContentStats(users) {
+                let courses = [];
+                let notes = [];
+                let syllabus = [];
+                let papers = [];
+                
+                // Collect all content
+                users.forEach(user => {
+                    if (user.savedCourses) {
+                        courses = courses.concat(user.savedCourses);
+                    }
+                    if (user.savedNotes) {
+                        notes = notes.concat(user.savedNotes);
+                    }
+                    if (user.savedSyllabus) {
+                        syllabus = syllabus.concat(user.savedSyllabus);
+                    }
+                    if (user.savedPapers) {
+                        papers = papers.concat(user.savedPapers);
+                    }
+                });
+                
+                // Count unique courses
+                const uniqueCourses = new Set();
+                courses.forEach(course => {
+                    uniqueCourses.add(course.id || course.name);
+                });
+                
+                // Render content stats
+                contentStats.innerHTML = `
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-book"></i> Courses</h4>
+                        <p>${uniqueCourses.size} unique courses saved across all users</p>
+                        <p>${courses.length} total course saves</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-sticky-note"></i> Notes</h4>
+                        <p>${notes.length} notes saved across all users</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-file-alt"></i> Syllabus</h4>
+                        <p>${syllabus.length} syllabus saved across all users</p>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4 class="detail-title"><i class="fas fa-file-pdf"></i> Papers</h4>
+                        <p>${papers.length} papers saved across all users</p>
+                    </div>
+                `;
+            }
+            
+            // Event listeners for refresh buttons
+            document.getElementById('refresh-stats-btn').addEventListener('click', fetchDashboardStats);
+            document.getElementById('refresh-all-users-btn').addEventListener('click', fetchAllUsers);
+            
+            // Search and filter functionality
+            document.getElementById('user-search').addEventListener('input', function() {
+                applyFiltersAndSearch();
+            });
+            
+            document.getElementById('user-filter').addEventListener('change', function() {
+                applyFiltersAndSearch();
+            });
+            
+            // Pagination functionality
+            document.getElementById('prev-page-btn').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    applyFiltersAndSearch();
+                }
+            });
+            
+            document.getElementById('next-page-btn').addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    applyFiltersAndSearch();
+                }
+            });
+            
+            // Add user button
+            document.getElementById('add-user-btn').addEventListener('click', function() {
+                showAddUserModal();
+            });
+            
+            // Confirm delete button
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (currentUserToDelete) {
+                    deleteUser(currentUserToDelete.id);
+                }
+            });
+            
+            // Settings form functionality
+            const adminSettingsForm = document.getElementById('admin-settings-form');
+            const settingsAlert = document.getElementById('settings-alert');
+            
+            // Toggle password visibility
+            document.querySelectorAll('.toggle-password-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const passwordInput = this.previousElementSibling;
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            });
+            
+            // Save settings
+            adminSettingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('admin-username').value;
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const sessionTimeout = document.getElementById('session-timeout').value;
+                const allowRegistration = document.getElementById('allow-registration').checked;
+                const allowContentSaving = document.getElementById('allow-content-saving').checked;
+                
+                // Validate passwords if changing
+                if (newPassword && newPassword !== confirmPassword) {
+                    showSettingsAlert('New passwords do not match', 'error');
+                    return;
+                }
+                
+                // Create settings object
+                const settings = {
+                    username,
+                    currentPassword,
+                    newPassword: newPassword || undefined,
+                    sessionTimeout: parseInt(sessionTimeout),
+                    allowRegistration,
+                    allowContentSaving
+                };
+                
+                // Send to server
+                fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(settings)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to save settings');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showSettingsAlert('Settings saved successfully', 'success');
+                    
+                    // Update token if provided
+                    if (data.token) {
+                        adminToken = data.token;
+                        localStorage.setItem('adminToken', adminToken);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving settings:', error);
+                    showSettingsAlert('Failed to save settings. Please check your current password.', 'error');
+                });
+            });
+            
+            // Reset settings form
+            document.getElementById('reset-settings-btn').addEventListener('click', function() {
+                adminSettingsForm.reset();
+                loadCurrentSettings();
+            });
+            
+            // Backup data
+            document.getElementById('backup-data-btn').addEventListener('click', function() {
+                fetch('/api/admin/backup', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to create backup');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Create and download file
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    const url = URL.createObjectURL(dataBlob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `notenexus_backup_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showSettingsAlert('Backup created successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('Error creating backup:', error);
+                    showSettingsAlert('Failed to create backup', 'error');
+                });
+            });
+            
+            // Clear all data
+            document.getElementById('clear-data-btn').addEventListener('click', function() {
+                if (confirm('WARNING: This will delete ALL user data. This action cannot be undone. Are you sure?')) {
+                    fetch('/api/admin/clear-data', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${adminToken}`
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to clear data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        showSettingsAlert('All data cleared successfully', 'success');
+                        fetchAllUsers(); // Refresh user data
+                        fetchDashboardStats(); // Refresh dashboard
+                    })
+                    .catch(error => {
+                        console.error('Error clearing data:', error);
+                        showSettingsAlert('Failed to clear data', 'error');
+                    });
+                }
+            });
+            
+            // Load current settings
+            function loadCurrentSettings() {
+                fetch('/api/admin/settings', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load settings');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate form
+                    document.getElementById('admin-username').value = data.username || '';
+                    document.getElementById('session-timeout').value = data.sessionTimeout || 60;
+                    document.getElementById('allow-registration').checked = data.allowRegistration !== false;
+                    document.getElementById('allow-content-saving').checked = data.allowContentSaving !== false;
+                })
+                .catch(error => {
+                    console.error('Error loading settings:', error);
+                    showSettingsAlert('Failed to load settings', 'error');
+                });
+            }
+            
+            // Show settings alert
+            function showSettingsAlert(message, type) {
+                settingsAlert.className = `alert alert-${type}`;
+                settingsAlert.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+                
+                // Auto hide after 5 seconds for success messages
+                if (type === 'success') {
+                    setTimeout(() => {
+                        settingsAlert.className = 'alert alert-info';
+                        settingsAlert.innerHTML = '<i class="fas fa-info-circle"></i> Changes to settings will be saved to the server.';
+                    }, 5000);
+                }
+            }
+            
+            // Show add user modal
+            function showAddUserModal() {
+                // Implementation for adding a new user
+                alert('Add user functionality will be implemented here');
+            }
+            
+            // Show user edit modal
+            function showUserEditModal(user) {
+                // Implementation for editing a user
+                alert(`Edit user ${user.name} functionality will be implemented here`);
+            }
+            
+            // Dashboard stats function
+            function fetchDashboardStats() {
+                fetch('/api/admin/stats', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch stats');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update dashboard stats
+                    document.getElementById('total-users').textContent = data.totalUsers || 0;
+                    document.getElementById('total-courses').textContent = data.totalCourses || 0;
+                    document.getElementById('total-saved-items').textContent = data.totalSavedItems || 0;
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                });
+            }
+            
+            // Initial data fetch
+            fetchAllUsers();
+            fetchDashboardStats();
+            loadCurrentSettings();
+        });
+    </script>
+</body>
+</html>

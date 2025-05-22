@@ -1,0 +1,6 @@
+{
+  "username": "admin",
+  "sessionTimeout": 60,
+  "allowRegistration": true,
+  "allowContentSaving": true
+}

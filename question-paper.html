@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Year Question Papers - PrepEngine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/api.js"></script>
+    <script src="js/header-init.js"></script>
+    <style>
+        /* All header styles are in header.css */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding: 20px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        .filter-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(33,150,243,0.3);
+            border-radius: 8px;
+            background-color: white;
+        }
+        .table-container {
+            background: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background-color: var(--primary-light);
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .download-btn:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* Loading and empty state styles */
+        .loading-message, .empty-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            color: #757575;
+        }
+        
+        .loading-message i, .empty-message i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #3f51b5;
+        }
+        
+        .empty-message i {
+            color: #9e9e9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shape1"></div>
+    <div class="bg-shape2"></div>
+    <div class="bg-shape3"></div>
+    <!-- Include the header and side panel -->
+    <div id="header-container"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="separator">/</span>
+                <span class="current">Previous Year Question Papers</span>
+            </div>
+            
+            <h1 class="page-title">Previous Year Question Papers</h1>
+            <p class="page-description">Access question papers from previous years to better understand exam patterns and prepare effectively for your engineering exams.</p>
+            
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label class="filter-label">Course</label>
+                    <select class="filter-select" id="course-filter">
+                        <option value="all">All Courses</option>
+                        <!-- Courses will be loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div id="papers-loading" class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading question papers...</p>
+                </div>
+                
+                <div id="papers-empty" class="empty-message" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>No question papers found matching your criteria.</p>
+                </div>
+                
+                <table class="data-table" id="papers-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>File Name</th>
+                            <th>Download</th>
+                        </tr>
+                    </thead>
+                    <tbody id="papers-list">
+                        <!-- Question papers will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        // Call the loadHeader function from header-init.js instead of defining it here
+        
+        // No need for custom header initialization - it's now handled by header.js embedded in header.html
+        
+        // Load header immediately
+        loadHeader();
+        
+        // Also ensure it's loaded after DOM is ready (backup)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!document.querySelector('#hamburger-btn')) {
+                console.log('Header not loaded properly, retrying...');
+                loadHeader();
+            }
+            
+            // Load all courses for the filter dropdown
+            loadCourses();
+            
+            // Load all question papers
+            loadAllQuestionPapers();
+            
+            // Add event listener to course filter
+            document.getElementById('course-filter').addEventListener('change', applyFilters);
+        });
+        
+        // Function to load courses for the filter dropdown
+        function loadCourses() {
+            const courseFilter = document.getElementById('course-filter');
+            courseFilter.innerHTML = '<option value="all">All Courses</option>';
+            courseFilter.disabled = true;
+            
+            // Fetch courses from the API
+            fetch('http://localhost:3000/api/courses')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load courses');
+                    }
+                    return response.json();
+                })
+                .then(courses => {
+                    // Add courses to the filter dropdown
+                    courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.name;
+                        option.textContent = course.name;
+                        courseFilter.appendChild(option);
+                    });
+                    courseFilter.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error loading courses:', error);
+                    courseFilter.innerHTML = '<option value="all">All Courses (Error Loading)</option>';
+                });
+        }
+        
+        // Global variable to store all question papers
+        let allQuestionPapers = [];
+        
+        // Function to load all question papers from all courses
+        function loadAllQuestionPapers() {
+            const loadingElement = document.getElementById('papers-loading');
+            const tableElement = document.getElementById('papers-table');
+            const emptyElement = document.getElementById('papers-empty');
+            
+            loadingElement.style.display = 'flex';
+            tableElement.style.display = 'none';
+            emptyElement.style.display = 'none';
+            
+            // Fetch all courses first
+            fetch('http://localhost:3000/api/courses')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load courses');
+                    }
+                    return response.json();
+                })
+                .then(courses => {
+                    // Create an array of promises to fetch question papers for each course
+                    const promises = courses.map(course => 
+                        fetch(`http://localhost:3000/api/course/${encodeURIComponent(course.name)}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    return { courseName: course.name, papers: [] };
+                                }
+                                return response.json().then(data => ({
+                                    courseName: course.name,
+                                    papers: data.questionPapers || []
+                                }));
+                            })
+                            .catch(() => ({ courseName: course.name, papers: [] }))
+                    );
+                    
+                    // Wait for all promises to resolve
+                    return Promise.all(promises);
+                })
+                .then(results => {
+                    // Flatten the array of question papers
+                    allQuestionPapers = [];
+                    
+                    results.forEach(result => {
+                        if (result.papers && result.papers.length > 0) {
+                            result.papers.forEach(paper => {
+                                allQuestionPapers.push({
+                                    course: result.courseName,
+                                    fileName: paper.name,
+                                    path: paper.path,
+                                    type: paper.type
+                                });
+                            });
+                        }
+                    });
+                    
+                    // Apply filters and display the results
+                    applyFilters();
+                })
+                .catch(error => {
+                    console.error('Error loading question papers:', error);
+                    loadingElement.style.display = 'none';
+                    emptyElement.style.display = 'flex';
+                    emptyElement.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading question papers. Please ensure the server is running.</p>
+                    `;
+                });
+        }
+        
+        // Function to apply filters and update the table
+        function applyFilters() {
+            const courseFilter = document.getElementById('course-filter').value;
+            
+            const loadingElement = document.getElementById('papers-loading');
+            const tableElement = document.getElementById('papers-table');
+            const emptyElement = document.getElementById('papers-empty');
+            const papersList = document.getElementById('papers-list');
+            
+            // Filter the question papers
+            const filteredPapers = allQuestionPapers.filter(paper => {
+                if (courseFilter !== 'all' && paper.course !== courseFilter) return false;
+                return true;
+            });
+            
+            // Show/hide elements based on results
+            loadingElement.style.display = 'none';
+            
+            if (filteredPapers.length === 0) {
+                tableElement.style.display = 'none';
+                emptyElement.style.display = 'flex';
+            } else {
+                tableElement.style.display = 'table';
+                emptyElement.style.display = 'none';
+                
+                // Clear the table
+                papersList.innerHTML = '';
+                
+                // Add the filtered papers to the table
+                filteredPapers.forEach(paper => {
+                    const row = document.createElement('tr');
+                    
+                    // Get file icon based on type
+                    let fileIcon = 'fa-file';
+                    if (paper.type === 'pdf') fileIcon = 'fa-file-pdf';
+                    else if (['doc', 'docx'].includes(paper.type)) fileIcon = 'fa-file-word';
+                    
+                    row.innerHTML = `
+                        <td>${paper.course}</td>
+                        <td>${paper.fileName}</td>
+                        <td>
+                            <a href="${paper.path}" class="download-btn" target="_blank">
+                                <i class="fas ${fileIcon}"></i> ${paper.type.toUpperCase()}
+                            </a>
+                        </td>
+                    `;
+                    
+                    papersList.appendChild(row);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

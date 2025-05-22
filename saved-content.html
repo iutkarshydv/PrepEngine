@@ -1,0 +1,809 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Course Content - PrepEngine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/api.js"></script>
+    <script src="js/header-init.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Header styles moved to header.css */
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: #3f51b5;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb .separator {
+            margin: 0 0.5rem;
+            color: #999;
+        }
+        
+        .breadcrumb .current {
+            color: #666;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .page-description {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .tab-container {
+            margin-bottom: 2rem;
+        }
+        
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #3f51b5;
+            border-bottom-color: #3f51b5;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .resource-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .resource-item {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        .resource-item:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+        
+        .resource-item-info {
+            flex: 1;
+            padding-right: 1rem;
+        }
+        
+        .resource-item-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #333;
+            font-size: 1.05rem;
+        }
+        
+        .resource-item-meta {
+            font-size: 0.85rem;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .resource-item-meta i {
+            color: #666;
+        }
+        
+        .resource-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 140px;
+            justify-content: flex-end;
+        }
+        
+        .resource-item-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #3f51b5;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .resource-item-download:hover {
+            background-color: rgba(63, 81, 181, 0.1);
+        }
+        
+        .star-btn {
+            background: none;
+            border: none;
+            color: #ffc107;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.2s;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .star-btn:hover {
+            background-color: rgba(255, 193, 7, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-state-btn {
+            display: inline-block;
+            background-color: #3f51b5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .empty-state-btn:hover {
+            background-color: #303f9f;
+        }
+        
+        .unsave-all-btn {
+            display: inline-block;
+            background-color: #f44336;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .unsave-all-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .resource-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .resource-item-actions {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Container for dynamically loading the header -->
+    <div id="header-container"></div>
+    
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="separator">/</span>
+            <a href="savednotes.html">Saved Courses</a>
+            <span class="separator">/</span>
+            <span class="current" id="course-name-breadcrumb">Course Name</span>
+        </div>
+        
+        <h1 class="page-title" id="course-title">Course Name</h1>
+        <p class="page-description">View all your saved content for this course</p>
+        
+        <div class="tab-container">
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="notes-tab">Notes</button>
+                <button class="tab-btn" data-tab="syllabus-tab">Syllabus</button>
+                <button class="tab-btn" data-tab="papers-tab">Question Papers</button>
+            </div>
+            
+            <div id="notes-tab" class="tab-content active">
+                <div id="saved-notes" class="resource-list">
+                    <!-- Notes will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Loading Notes...</h3>
+                        <p>Please wait while we fetch your saved notes.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="syllabus-tab" class="tab-content">
+                <div id="saved-syllabus" class="resource-list">
+                    <!-- Syllabus will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Loading Syllabus...</h3>
+                        <p>Please wait while we fetch your saved syllabus.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="papers-tab" class="tab-content">
+                <div id="saved-papers" class="resource-list">
+                    <!-- Question Papers will be loaded here -->
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Loading Question Papers...</h3>
+                        <p>Please wait while we fetch your saved question papers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="unsave-all-btn" onclick="unsaveAllContent()">
+            <i class="fas fa-trash-alt"></i> Unsave All Content for This Course
+        </button>
+    </div>
+    
+    <script>
+        // Function to get URL parameters
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Function to load saved content for a specific course
+        function loadSavedContent() {
+            const courseName = getUrlParam('course');
+            if (!courseName) {
+                alert('No course specified');
+                window.location.href = 'savednotes.html';
+                return;
+            }
+            
+            // Update breadcrumb and title
+            document.getElementById('course-name-breadcrumb').textContent = courseName;
+            document.getElementById('course-title').textContent = courseName;
+            
+            // Get current user
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                alert('You must be logged in to view saved content');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load saved content for this course
+            loadSavedNotes(courseName, currentUser);
+            loadSavedSyllabus(courseName, currentUser);
+            loadSavedPapers(courseName, currentUser);
+        }
+        
+        // Function to load saved notes for a specific course
+        function loadSavedNotes(courseName, currentUser) {
+            const savedNotesContainer = document.getElementById('saved-notes');
+            const savedNotes = currentUser.savedNotes || [];
+            
+            console.log('Loading saved notes for course:', courseName);
+            console.log('All saved notes in localStorage:', savedNotes);
+            
+            // Filter notes for this course (check both courseName and course properties)
+            const courseNotes = savedNotes.filter(note => 
+                note.courseName === courseName || note.course === courseName);
+                
+            console.log('Filtered notes for this course:', courseNotes);
+            
+            if (courseNotes.length === 0) {
+                savedNotesContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-sticky-note"></i>
+                        <h3>No Saved Notes</h3>
+                        <p>You haven't saved any notes for this course yet.</p>
+                        <a href="course.html?course=${encodeURIComponent(courseName)}" class="empty-state-btn">Browse Course Notes</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display saved notes
+            savedNotesContainer.innerHTML = '';
+            courseNotes.forEach(note => {
+                savedNotesContainer.innerHTML += `
+                    <div class="resource-item">
+                        <div class="resource-item-info">
+                            <h3 class="resource-item-title">${note.title}</h3>
+                            <div class="resource-item-meta">
+                                <span><i class="fas fa-calendar"></i> ${new Date(note.date || Date.now()).toLocaleDateString()}</span>
+                                <span><i class="fas fa-book"></i> ${note.courseName || note.course}</span>
+                            </div>
+                        </div>
+                        <div class="resource-item-actions">
+                            <a href="course.html?course=${encodeURIComponent(courseName)}&note=${encodeURIComponent(note.title)}" class="resource-item-download">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button class="star-btn" data-id="${note.id}" data-type="note" onclick="removeFromSaved(this)">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Function to load saved syllabus for a specific course
+        function loadSavedSyllabus(courseName, currentUser) {
+            const savedSyllabusContainer = document.getElementById('saved-syllabus');
+            const savedSyllabus = currentUser.savedSyllabus || [];
+            
+            console.log('Loading saved syllabus for course:', courseName);
+            console.log('All saved syllabus in localStorage:', savedSyllabus);
+            
+            // Filter syllabus for this course (check both courseName and course properties)
+            const courseSyllabus = savedSyllabus.filter(syllabus => 
+                syllabus.courseName === courseName || syllabus.course === courseName);
+                
+            console.log('Filtered syllabus for this course:', courseSyllabus);
+            
+            if (courseSyllabus.length === 0) {
+                savedSyllabusContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list-alt"></i>
+                        <h3>No Saved Syllabus</h3>
+                        <p>You haven't saved any syllabus for this course yet.</p>
+                        <a href="course.html?course=${encodeURIComponent(courseName)}" class="empty-state-btn">Browse Course Syllabus</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display saved syllabus
+            savedSyllabusContainer.innerHTML = '';
+            courseSyllabus.forEach(syllabus => {
+                savedSyllabusContainer.innerHTML += `
+                    <div class="resource-item">
+                        <div class="resource-item-info">
+                            <h3 class="resource-item-title">${syllabus.title}</h3>
+                            <div class="resource-item-meta">
+                                <span><i class="fas fa-calendar"></i> ${new Date(syllabus.date || Date.now()).toLocaleDateString()}</span>
+                                <span><i class="fas fa-book"></i> ${syllabus.courseName || syllabus.course}</span>
+                            </div>
+                        </div>
+                        <div class="resource-item-actions">
+                            <a href="course.html?course=${encodeURIComponent(courseName)}&syllabus=true" class="resource-item-download">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <button class="star-btn" data-id="${syllabus.id}" data-type="syllabus" onclick="removeFromSaved(this)">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Function to load saved question papers for a specific course
+        function loadSavedPapers(courseName, currentUser) {
+            const savedPapersContainer = document.getElementById('saved-papers');
+            const savedPapers = currentUser.savedPapers || [];
+            
+            console.log('Loading saved papers for course:', courseName);
+            console.log('All saved papers in localStorage:', savedPapers);
+            
+            // Filter papers for this course (check both courseName and course properties)
+            const coursePapers = savedPapers.filter(paper => 
+                paper.courseName === courseName || paper.course === courseName);
+                
+            console.log('Filtered papers for this course:', coursePapers);
+            
+            if (coursePapers.length === 0) {
+                savedPapersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No Saved Papers</h3>
+                        <p>You haven't saved any question papers for this course yet.</p>
+                        <a href="course.html?course=${encodeURIComponent(courseName)}" class="empty-state-btn">Browse Course Papers</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Display saved papers
+            savedPapersContainer.innerHTML = '';
+            coursePapers.forEach(paper => {
+                savedPapersContainer.innerHTML += `
+                    <div class="resource-item">
+                        <div class="resource-item-info">
+                            <h3 class="resource-item-title">${paper.title}</h3>
+                            <div class="resource-item-meta">
+                                <span><i class="fas fa-calendar"></i> ${new Date(paper.date || Date.now()).toLocaleDateString()}</span>
+                                <span><i class="fas fa-book"></i> ${paper.courseName || paper.course}</span>
+                            </div>
+                        </div>
+                        <div class="resource-item-actions">
+                            <a href="${paper.url}" class="resource-item-download" download>
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            <button class="star-btn" data-id="${paper.id}" data-type="paper" onclick="removeFromSaved(this)">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        // Function to remove item from saved
+        async function removeFromSaved(button) {
+            const itemId = button.getAttribute('data-id');
+            const itemType = button.getAttribute('data-type');
+            const courseName = getUrlParam('course');
+            
+            console.log(`Removing ${itemType} with ID: ${itemId} from course: ${courseName}`);
+            
+            // Get current user and token
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
+            
+            if (!currentUser || !token) {
+                alert('You must be logged in to remove saved content');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                // First get the saved items from the server to find the correct server ID
+                let serverEndpoint = '';
+                let itemsArray = [];
+                let serverItemId = null;
+                
+                if (itemType === 'note') {
+                    serverEndpoint = '/api/saved/notes';
+                    itemsArray = currentUser.savedNotes || [];
+                } else if (itemType === 'syllabus') {
+                    serverEndpoint = '/api/saved/syllabus';
+                    itemsArray = currentUser.savedSyllabus || [];
+                } else if (itemType === 'paper') {
+                    serverEndpoint = '/api/saved/papers';
+                    itemsArray = currentUser.savedPapers || [];
+                }
+                
+                // Find the item in localStorage
+                const item = itemsArray.find(item => item.id === itemId);
+                console.log(`Found item in localStorage:`, item);
+                
+                if (item) {
+                    // Get all saved items of this type from the server
+                    const response = await fetch(serverEndpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const serverItems = await response.json();
+                        console.log(`Server ${itemType}s:`, serverItems);
+                        
+                        // Find the matching item on the server
+                        const serverItem = serverItems.find(serverItem => 
+                            (serverItem.title === item.title && 
+                             (serverItem.courseName === courseName || serverItem.course === courseName)));
+                        
+                        if (serverItem) {
+                            serverItemId = serverItem._id;
+                            console.log(`Found server item ID: ${serverItemId}`);
+                        }
+                    }
+                }
+                
+                // Remove from server if we found the server ID
+                if (serverItemId) {
+                    const deleteEndpoint = `/api/saved/${itemType}/${serverItemId}`;
+                    console.log(`Removing from server: ${deleteEndpoint}`);
+                    
+                    const deleteResponse = await fetch(deleteEndpoint, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!deleteResponse.ok) {
+                        console.error(`Failed to remove ${itemType} from server:`, await deleteResponse.json());
+                    }
+                }
+                
+                // Remove from appropriate array in localStorage
+                if (itemType === 'note') {
+                    currentUser.savedNotes = (currentUser.savedNotes || []).filter(note => note.id !== itemId);
+                } else if (itemType === 'syllabus') {
+                    currentUser.savedSyllabus = (currentUser.savedSyllabus || []).filter(syllabus => syllabus.id !== itemId);
+                } else if (itemType === 'paper') {
+                    currentUser.savedPapers = (currentUser.savedPapers || []).filter(paper => paper.id !== itemId);
+                }
+                
+                // Auto-check if we need to remove the course from saved courses
+                const hasOtherSavedNotes = currentUser.savedNotes && currentUser.savedNotes.some(n => 
+                    n.courseName === courseName || n.course === courseName);
+                const hasOtherSavedSyllabus = currentUser.savedSyllabus && currentUser.savedSyllabus.some(s => 
+                    s.courseName === courseName || s.course === courseName);
+                const hasOtherSavedPapers = currentUser.savedPapers && currentUser.savedPapers.some(p => 
+                    p.courseName === courseName || p.course === courseName);
+                
+                // Remove the course if there are no other saved items
+                if (!hasOtherSavedNotes && !hasOtherSavedSyllabus && !hasOtherSavedPapers) {
+                    // Remove course from localStorage
+                    if (currentUser.savedCourses) {
+                        currentUser.savedCourses = currentUser.savedCourses.filter(course => course !== courseName);
+                    }
+                    
+                    console.log(`Removed course: ${courseName} as no items are saved`);
+                    
+                    // Remove course from server
+                    await fetch(`/api/saved/course/${encodeURIComponent(courseName)}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    // Redirect back to saved courses since this course is no longer saved
+                    alert(`All saved content for ${courseName} has been removed. Redirecting to saved courses.`);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    window.location.href = 'savednotes.html';
+                    return;
+                }
+                
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Remove from DOM
+                button.closest('.resource-item').remove();
+                
+                // Check if container is empty
+                const container = document.getElementById(`saved-${itemType}s`);
+                if (container && container.querySelector('.resource-item') === null) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-${itemType === 'note' ? 'sticky-note' : (itemType === 'syllabus' ? 'list-alt' : 'file-alt')}"></i>
+                            <h3>No Saved ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}s</h3>
+                            <p>You haven't saved any ${itemType}s for this course yet.</p>
+                            <a href="course.html?course=${encodeURIComponent(courseName)}" class="empty-state-btn">Browse Course ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}s</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error(`Error removing ${itemType}:`, error);
+                alert(`Failed to remove ${itemType}. Please try again.`);
+            }
+        }
+        
+        // Function to unsave all content for this course
+        async function unsaveAllContent() {
+            const courseName = getUrlParam('course');
+            
+            if (!confirm(`Are you sure you want to unsave all content for ${courseName}?`)) {
+                return;
+            }
+            
+            // Get current user and token
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
+            
+            if (!currentUser || !token) {
+                alert('You must be logged in to remove saved content');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                console.log(`Removing all saved content for course: ${courseName}`);
+                
+                // Get all saved notes, syllabus, and papers from the server
+                const endpoints = [
+                    '/api/saved/notes',
+                    '/api/saved/syllabus',
+                    '/api/saved/papers'
+                ];
+                
+                // Process each endpoint
+                for (const endpoint of endpoints) {
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const items = await response.json();
+                        console.log(`Server items from ${endpoint}:`, items);
+                        
+                        // Find items for this course
+                        const courseItems = items.filter(item => 
+                            item.courseName === courseName || item.course === courseName);
+                        
+                        console.log(`Items to delete from ${endpoint}:`, courseItems);
+                        
+                        // Delete each item from the server
+                        for (const item of courseItems) {
+                            const itemType = endpoint.split('/').pop(); // notes, syllabus, or papers
+                            const singularType = itemType.endsWith('s') ? 
+                                itemType.substring(0, itemType.length - 1) : itemType;
+                            
+                            const deleteEndpoint = `/api/saved/${singularType}/${item._id}`;
+                            console.log(`Removing from server: ${deleteEndpoint}`);
+                            
+                            try {
+                                const deleteResponse = await fetch(deleteEndpoint, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    }
+                                });
+                                
+                                if (!deleteResponse.ok) {
+                                    console.error(`Failed to remove item from server:`, await deleteResponse.json());
+                                }
+                            } catch (error) {
+                                console.error(`Error removing item:`, error);
+                            }
+                        }
+                    }
+                }
+                
+                // Remove course from server
+                const removeCourseResponse = await fetch(`/api/saved/course/${encodeURIComponent(courseName)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!removeCourseResponse.ok) {
+                    console.error('Failed to remove course from server:', await removeCourseResponse.json());
+                }
+                
+                // Remove all items for this course from localStorage
+                if (currentUser.savedNotes) {
+                    currentUser.savedNotes = currentUser.savedNotes.filter(note => 
+                        note.courseName !== courseName && note.course !== courseName);
+                }
+                
+                if (currentUser.savedSyllabus) {
+                    currentUser.savedSyllabus = currentUser.savedSyllabus.filter(syllabus => 
+                        syllabus.courseName !== courseName && syllabus.course !== courseName);
+                }
+                
+                if (currentUser.savedPapers) {
+                    currentUser.savedPapers = currentUser.savedPapers.filter(paper => 
+                        paper.courseName !== courseName && paper.course !== courseName);
+                }
+                
+                // Remove course from saved courses
+                if (currentUser.savedCourses) {
+                    currentUser.savedCourses = currentUser.savedCourses.filter(course => course !== courseName);
+                }
+                
+                // Update localStorage
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Redirect back to saved courses
+                alert(`All saved content for ${courseName} has been removed. Redirecting to saved courses.`);
+                window.location.href = 'savednotes.html';
+            } catch (error) {
+                console.error('Error removing all content:', error);
+                alert(`Failed to remove all content. Please try again.`);
+            }
+        }
+        
+        // Function to handle tab switching
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up tab switching
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all tab buttons and contents
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab button and content
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Load header
+            loadHeader();
+            
+            // Load saved content
+            loadSavedContent();
+        });
+    </script>
