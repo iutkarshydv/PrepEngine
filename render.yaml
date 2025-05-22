@@ -1,0 +1,13 @@
+<invoke name="write_to_file">
+<parameter name="TargetFile">d:\GitHub\PrepEngine\render.yaml</parameter>
+<parameter name="CodeContent">services:
+  - type: web
+    name: prepengine
+    env: node
+    buildCommand: npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+</parameter>
+</invoke>
