@@ -1,5 +1,6 @@
 {
   "username": "admin",
+  "password": "admin123",
   "sessionTimeout": 60,
   "allowRegistration": true,
   "allowContentSaving": true
