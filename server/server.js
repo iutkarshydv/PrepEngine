@@ -272,14 +272,21 @@ function getImageKeyword(courseName) {
 
 // Start server
 const PORT = config.port;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log('Running in development mode without MongoDB connection');
-  console.log('API endpoints available at:');
-  console.log(`- Authentication: http://localhost:${PORT}/api/auth`);
-  console.log(`- Saved Content: http://localhost:${PORT}/api/saved`);
-  console.log(`- Courses: http://localhost:${PORT}/api/courses`);
-});
+
+// Only start server if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Running in development mode without MongoDB connection');
+    console.log('API endpoints available at:');
+    console.log(`- Authentication: http://localhost:${PORT}/api/auth`);
+    console.log(`- Saved Content: http://localhost:${PORT}/api/saved`);
+    console.log(`- Courses: http://localhost:${PORT}/api/courses`);
+  });
+}
+
+// Export the Express app for Vercel serverless
+module.exports = app;
 
 /* MongoDB connection code - Uncomment when database is available
 mongoose.connect(config.mongoURI, {

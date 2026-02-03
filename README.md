@@ -299,6 +299,38 @@ services:
         value: production
 ```
 
+### Vercel Deployment
+
+This project is configured for easy deployment on Vercel:
+
+1. **Install Vercel CLI** (optional):
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy via Vercel CLI**:
+   ```bash
+   cd d:\GitHub\PrepEngine
+   vercel
+   ```
+   Follow the prompts to link your project and deploy.
+
+3. **Deploy via Vercel Dashboard**:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New Project"
+   - Import your GitHub repository
+   - Vercel will automatically detect the `vercel.json` configuration
+   - Click "Deploy"
+
+4. **Environment Variables** (if needed):
+   - In Vercel Dashboard, go to Project Settings → Environment Variables
+   - Add any required variables (MONGODB_URI, JWT_SECRET, etc.)
+
+The project includes a `vercel.json` configuration file that:
+- Builds the Express server as a serverless function
+- Routes API requests to `/api/*` endpoints
+- Serves static frontend files from the root directory
+
 ### Manual Deployment
 
 1. Set up a Node.js hosting environment
