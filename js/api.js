@@ -3,8 +3,10 @@
  * Handles all communication with the backend server
  */
 
-// Base API URL - change this when deploying
-const API_BASE_URL = 'http://localhost:3000/api';
+// Base API URL - automatically detects environment
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : '/api'; // Use relative path in production (Vercel)
 
 // Helper function to get auth token from localStorage
 const getToken = () => localStorage.getItem('token');

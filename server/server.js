@@ -20,6 +20,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Serve static files from the parent directory (frontend files)
+app.use(express.static(path.join(__dirname, '..')));
+
 // Define routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/saved', require('./routes/saved'));
