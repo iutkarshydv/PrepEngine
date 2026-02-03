@@ -6,12 +6,25 @@ All configurations have been completed:
 - [x] API URL automatically detects environment (local vs production)
 - [x] Static file serving configured in Express
 - [x] Package.json updated with correct entry point and all dependencies
-- [x] Vercel.json configured for proper routing
+- [x] Vercel.json configured with proper builds and routing
+- [x] API serverless function created in `/api` directory
 - [x] Server exports app for serverless deployment
 
-## 🚀 Deployment Steps
+## 🚀 Quick Deploy Steps
 
-### Option 1: Deploy via Vercel Dashboard (Recommended)
+1. **Commit all changes**:
+   ```bash
+   git add .
+   git commit -m "Fix Vercel deployment configuration"
+   git push origin main
+   ```
+
+2. **Redeploy on Vercel**:
+   - Go to your Vercel dashboard
+   - Find your PrepEngine project
+   - Click "Redeploy" or it will auto-deploy from the push
+
+3. **Test**: Visit `https://your-project.vercel.app`
 
 1. **Ensure all changes are committed to Git**:
    ```bash
