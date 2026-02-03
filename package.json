@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
-    "build": "echo 'Build complete - static files ready'"
+    "build": "echo 'Build complete - static files ready'",
+    "vercel-build": "echo 'Vercel build complete'"
   },
   "keywords": [
     "education",
